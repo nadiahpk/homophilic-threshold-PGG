@@ -1,0 +1,11 @@
+
+functions/
+    Multi-purpose functions
+
+scripts/, results/
+
+    matrix_M/
+        Calculating the matrix that converts from the probabilities of possible partitions F_{n -> lambda} to the n-relatednesses theta_{l -> m}, i.e., the matrix in Eq. C1 in Ohtsuki (2014)
+
+    random_grp/
+        Results when groups are formed randomly, i.e., no homophily
