@@ -93,10 +93,16 @@ def make_0(par_val, par_name, parD_orig):
     return res
 # ------------------------------------------------------------
 
-# parameters
+# user parameters
 # ---
 
-suffix = '_5'                                   # which default parameter values to use from the file default_params.csv
+#suffix = '_5'                                   # which default parameter values to use from the file default_params.csv
+suffix = '_6'                                   # which default parameter values to use from the file default_params.csv
+
+
+# fixed parameters
+# ---
+
 par_names = ['n', 'tau', 'W', 'X', 'Y', 'Z']    # all parameter names corresponding to columns in default_params.csv
 vary_par_names = ['W', 'X', 'Y']                # which parameters are we finding the critical value for
 
@@ -104,9 +110,9 @@ vary_par_names = ['W', 'X', 'Y']                # which parameters are we findin
 # read in the default parameter values
 # ---
 
-df = pd.read_csv('default_params.csv')
+df = pd.read_csv('../default_params.csv')
 df.set_index('suffix', inplace=True)
-parD_orig = { par_name: df.loc[suffix][par_name] for par_name in par_names }
+parD_orig = { par_name: df[par_name].loc[suffix] for par_name in par_names }
 
 
 # find the critical value for each vary_par_name while holding other parameters at default values
