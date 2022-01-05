@@ -9,44 +9,13 @@ from scipy.special import binom
 from scipy.optimize import newton
 import pandas as pd
 
+import sys
+sys.path.append('../../functions/')
+
+from my_functions import calc_p_peak_random_group
+
+
 # ------------------------------------------------------------
-
-def calc_p_peak(tau, n, W, X, Y, Z):
-    '''
-    Find the value of p that maximises Delta p
-
-    Inputs
-    ---
-
-    tau, int
-        Threshold number of cooperators for public good to be produced
-
-    n, int
-        Group size
-
-    W, float
-        Cooperator payoff if threshold met
-
-    X, float
-        Cooperator payoff if threshold not met
-
-    Y, float
-        Defector payoff if threshold met
-
-    Z, float
-        Defector payoff if threshold not met
-
-
-    Outputs
-    ---
-
-    p_peak, float [0,1]
-        Value of p that maximises Delta p
-    '''
-
-    p_peak = (tau-1)*(W-X)/((tau-1)*(W-X)+(Y-Z)*(n-tau))
-
-    return p_peak
 
 # find the root of this equation to find the critical value of parameter par
 def make_0(par_val, par_name, parD_orig):
@@ -85,7 +54,7 @@ def make_0(par_val, par_name, parD_orig):
     Z = parD['Z']
 
     # find p_peak: (tau-1)(W-X)/[(tau-1)(W-X)+(Y-Z)(n-tau)]
-    p_peak = calc_p_peak(tau, n, W, X, Y, Z)
+    p_peak = calc_p_peak_random_group(parD)
 
     # Delta p given p_peak equals 0 at the critical par value
     res = X - Z + (W-X) * binom(n-1,tau-1) * p_peak**(tau-1) + sum( binom(n-1,l) * p_peak**l * (-1)**(l-tau) * ( binom(l-1, tau-2) * (X-W) + binom(l-1, tau-1) * (Z-Y)) for l in range(tau, n) )
@@ -96,15 +65,18 @@ def make_0(par_val, par_name, parD_orig):
 # user parameters
 # ---
 
-#suffix = '_5'                                   # which default parameter values to use from the file default_params.csv
-suffix = '_6'                                   # which default parameter values to use from the file default_params.csv
+#suffix = '_5'  # which default parameter values to use from the file default_params.csv
+suffix = '_6'   # which default parameter values to use from the file default_params.csv
 
 
 # fixed parameters
 # ---
 
-par_names = ['n', 'tau', 'W', 'X', 'Y', 'Z']    # all parameter names corresponding to columns in default_params.csv
-vary_par_names = ['W', 'X', 'Y']                # which parameters are we finding the critical value for
+# all parameter names corresponding to columns in default_params.csv
+par_names = ['n', 'tau', 'W', 'X', 'Y', 'Z']
+
+# which parameters are we finding the critical value for
+vary_par_names = ['W', 'X', 'Y']
 
 
 # read in the default parameter values
@@ -130,8 +102,8 @@ for vary_par_name in vary_par_names:
     # critical value of p
     parD = { par_name: par_val for par_name, par_val in parD_orig.items() }
     parD[vary_par_name] = vary_par_val_crit
-    tau = parD['tau']; n = parD['n']; W = parD['W']; X = parD['X']; Y = parD['Y']; Z = parD['Z'] # unpack parameter values
-    p_crit = calc_p_peak(tau, n, W, X, Y, Z)
+    # tau = parD['tau']; n = parD['n']; W = parD['W']; X = parD['X']; Y = parD['Y']; Z = parD['Z'] # unpack parameter values
+    p_crit = calc_p_peak_random_group(parD)
     p_crits.append(p_crit)
 
 

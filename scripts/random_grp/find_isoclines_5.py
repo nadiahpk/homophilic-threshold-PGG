@@ -230,7 +230,7 @@ for vary_par_name in ['W', 'X', 'Y']:
     # where two interior equilibria appear
     xloc = parD_orig[plotD[vary_par_name]['vpar_in']]
     pretty = r' $' + plotD[vary_par_name]['vpar_in'] + r'$'
-    plt.plot([xloc, xloc], [-0.1, 1], color='black', alpha=0.5, lw=1) #ls='dotted')
+    plt.plot([xloc, xloc], [-0.1, 1], color='black', alpha=0.5, lw=1)
     plt.text(xloc, 0.05, pretty, ha='left', va='bottom')
 
     # stable and unstable isocline
