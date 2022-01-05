@@ -9,3 +9,9 @@ scripts/, results/
 
     random_grp/
         Results when groups are formed randomly, i.e., no homophily
+
+    random_recruitor_nonkin_weighting/
+
+    random_recruitor_nonkin_probability/
+
+    leader_recruitor_nonkin_probability/

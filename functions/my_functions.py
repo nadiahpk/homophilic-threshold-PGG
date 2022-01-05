@@ -6,8 +6,11 @@ import pandas as pd
 
 def partitionInteger(n):
     '''
+    Finds all partitions of the integer n.
     Copied verbatim from: http://jeromekelleher.net/generating-integer-partitions.html
-    Finds all partitions of the integer n
+    Reference: 
+        Kelleher, J. and O’Sullivan, B. (2009). Generating all partitions: a comparison of two encodings, 
+        arXiv preprint arXiv:0909.2331
     '''
 
     a = [0 for i in range(n + 1)]
