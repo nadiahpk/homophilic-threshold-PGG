@@ -1,4 +1,4 @@
-# create a detailed example for n = 4
+# create a detailed example
 
 from math import factorial
 from scipy.special import binom
@@ -17,9 +17,13 @@ from my_functions import read_matrix_M, get_FV_random_probability, calc_p_peak_r
 # user parameters
 # ---
 
-ngrid = 50      # how many increments on the x-axis for plotting
-suffix = '_6'   # which default parameter values to use from the file default_params.csv
-suffix = '_5'   # which default parameter values to use from the file default_params.csv
+# how many increments on the x-axis for plotting
+ngrid = 50
+
+# which default parameter values to use from the file default_params.csv
+suffix = '_5'
+suffix = '_6'
+suffix = '_7'
 
 
 # fixed parameters
@@ -232,15 +236,13 @@ plt.text(q_0, 0, r'$q_0$' + '\n', ha='right', va='bottom', fontsize='large')
 plt.plot([q_1, q_1], [-0.1, 1], color='black', alpha=0.5, lw=1)
 plt.text(q_1, 1, '\n' + r'$q_1$', ha='right', va='top', fontsize='large')
 
-# explain the x-axis
-plt.text(1, -0.12, r'$\uparrow$', fontsize='small', ha='center', va='top')
-plt.text(1.01, -0.12, '\nrandom groups', fontsize='x-small', ha='right', va='top')
-plt.text(0, -0.12, r'$\uparrow$', fontsize='small', ha='center', va='top')
-plt.text(-0.01, -0.12, '\nperfect homophily', fontsize='x-small', ha='left', va='top')
-
 # decorate the plot
 
-#plt.title(r'$n = ' + str(n) + r', \tau = ' + str(tau) + ', W = ' + str(W) + ', X = ' + str(X) + ', Y = ' + str(Y) + ', Z = ' + str(Z) + r'$')
+# explain the x-axis
+plt.text(1, -0.12, r'$\uparrow$', fontsize='small', ha='center', va='top')
+plt.text(1.01, -0.12, '\nrandom groups', fontsize='small', ha='right', va='top')
+plt.text(0, -0.12, r'$\uparrow$', fontsize='small', ha='center', va='top')
+plt.text(-0.01, -0.12, '\nperfect homophily', fontsize='small', ha='left', va='top')
 
 plt.xlabel(r'probability to recruit nonkin $q$', fontsize='x-large')
 plt.ylabel(r'proportion of Cooperators $p$', fontsize='x-large')
@@ -249,5 +251,5 @@ plt.ylim((-0.05, 1.12))
 plt.legend(loc='upper center', framealpha=1, ncol=2)
 
 plt.tight_layout()
-plt.savefig('../../results/random_recruitor_nonkin_probability/p_vs_q' + suffix + '.pdf')
+plt.savefig('../../results/random_recruitor_nonkin_probability/isocline' + suffix + '.pdf')
 plt.close()

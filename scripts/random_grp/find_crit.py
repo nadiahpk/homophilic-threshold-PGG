@@ -65,8 +65,10 @@ def make_0(par_val, par_name, parD_orig):
 # user parameters
 # ---
 
-#suffix = '_5'  # which default parameter values to use from the file default_params.csv
-suffix = '_6'   # which default parameter values to use from the file default_params.csv
+# which default parameter values to use from the file default_params.csv
+#suffix = '_5'
+#suffix = '_6'
+suffix = '_7'
 
 
 # fixed parameters
