@@ -140,14 +140,12 @@ def calc_p_peak_random_group(parD):
     return p_peak
 
 
-# functions for homophilic group formation
+# functions for leader-driven homophilic group formation
 # ---
 
-# obtain F from degree of homophily
-
-def get_FV_leader_probability(n, partns, q):
+def get_FV_leader_driven(n, partns, q):
     '''
-    Using the 'leader recruits + nonkin probability' homophilic 
+    Using the 'leader driven' homophilic 
     group-formation model, calculate the vector of partition 
     probabilities F.
 
@@ -201,11 +199,219 @@ def get_FV_leader_probability(n, partns, q):
     return FV 
 
 
-def get_FV_random_probability(n, partns, q, fname=None): 
+def calc_delta_p_leader_driven(parD, lm, partns, M, q, p):
     '''
-    Using the 'random recruitor + nonkin probability' homophilic 
-    group-formation model, calculate the vector of partition 
-    probabilities F.
+    Using the 'leader driven' homophilic 
+    group-formation model, calculate delta_p, which is proportional to 
+    the change in frequency of Cooperators in the population.
+
+    Inputs
+    ---
+
+    parD, dict
+        Parameter values with keys below
+        - 'tau': int, Min no. Cooperators for public good productn
+        - 'n': int, Group size
+        - 'W': float, Cooperator payoff if threshold met
+        - 'X': float, Cooperator payoff if threshold not met
+        - 'Y': float, Defector payoff if threshold met
+        - 'Z': float, Defector payoff if threshold not met
+
+    lm, list of tuples of ints
+        A list of (l,m), the possible theta_{l -> m} indices
+
+    partns, list of list of ints
+        List of all possible partitions of n
+
+    M, matrix of floats
+        Matrix that converts partition probabilities F_{n -> lambda} 
+        to the n-relatednesses theta_{l -> m}). 
+
+    q, float (0,1)
+        The probability that the recruitor makes a mistake and 
+        recruits a nonkin new member
+        
+    p, float (0,1)
+        The proportion of Cooperators in the population
+
+
+    Outputs
+    ---
+
+    delta_p, float
+        A value that is proportional to the change in frequency of 
+        Cooperators in the population.
+    '''
+
+    # unpack parameter values
+    n = parD['n']
+    tau = parD['tau']
+    W = parD['W']
+    X = parD['X']
+    Y = parD['Y']
+    Z = parD['Z']
+
+    # payoff functions
+    b = lambda k: Z if k < tau else Y
+    a = lambda k: X if k < tau-1 else W
+
+    # find the probability of each partition according to the stranger-weighting model
+    FV = get_FV_leader_driven(n, partns, q)
+
+    # calculate theta_{l -> m}
+    thetaV = M @ np.array(FV)
+
+    # create a dictionary from (l,m) to theta_{l -> m}
+    thetaD = dict(zip(lm, thetaV))
+
+    # create the rho function
+    rho = lambda l: 1 if l == 0 else sum(thetaD[(l,m)]*p**m for m in range(1, l+1))
+
+    # calculate Delta p
+    delta_p = sum( 
+            sum( (-1)**(l-k) * binom(l, k) * binom(n-1, l) * 
+                ( (1-rho(1))*rho(l+1)*a(k) - rho(1)*(rho(l)-rho(l+1))*b(k) ) 
+                for l in range(k, n) ) 
+            for k in range(0, n) )
+
+    return delta_p
+
+
+def q0_root_eqn_leader_driven(parD, lm, partns, M, q):
+    '''
+    Using the 'leader_driven' homophilic group-formation model.
+
+    Solve this equation to calculate q_0, the mistake probability at 
+    which the unstable isocline meets the p=0 axis.
+
+    Inputs
+    ---
+
+    parD, dict
+        Parameter values with keys below
+        - 'tau': int, Min no. Cooperators for public good productn
+        - 'n': int, Group size
+        - 'W': float, Cooperator payoff if threshold met
+        - 'X': float, Cooperator payoff if threshold not met
+        - 'Y': float, Defector payoff if threshold met
+        - 'Z': float, Defector payoff if threshold not met
+
+    partns, list of list of ints
+        List of all possible partitions of n
+
+    M, matrix of floats
+        Matrix that converts partition probabilities F_{n -> lambda} 
+        to the n-relatednesses theta_{l -> m}). 
+
+    q, float (0,1)
+        The probability that the recruitor makes a mistake and 
+        recruits a nonkin new member
+        
+
+    Outputs
+    ---
+
+    res, float
+        Solve res=0 to obtain q_0
+    '''
+
+    # unpack parameter values
+    n = parD['n']
+    tau = parD['tau']
+    W = parD['W']
+    X = parD['X']
+    Y = parD['Y']
+    Z = parD['Z']
+
+    # payoff functions
+    b = lambda k: Z if k < tau else Y
+    a = lambda k: X if k < tau-1 else W
+    
+    # find the probability of each partition
+    FV = get_FV_leader_driven(n, partns, q)
+
+    # calculate theta_{l -> m}
+    thetaV = M @ np.array(FV)
+
+    # create a dictionary from (l,m) to theta_{l -> m}
+    thetaD = dict(zip(lm, thetaV))
+    res = X + (W-X)*sum( binom(n-1, l) * thetaD[(l+1, 1)] * (-1)**(l-tau+1) * binom(l-1,tau-2) 
+            for l in range(tau-1, n) ) - b(0)
+
+    return res
+
+# find the root of this equation to find where the isocline intercepts with the p_0 = 1 axis
+def q1_root_eqn_leader_driven(parD, lm, partns, M, q):
+    '''
+    Using the 'leader driven' homophilic group-formation model.
+
+    Solve this equation to calculate q_1, the mistake probability at 
+    which the stable isocline meets the p=1 axis.
+
+    Inputs
+    ---
+
+    parD, dict
+        Parameter values with keys below
+        - 'tau': int, Min no. Cooperators for public good productn
+        - 'n': int, Group size
+        - 'W': float, Cooperator payoff if threshold met
+        - 'X': float, Cooperator payoff if threshold not met
+        - 'Y': float, Defector payoff if threshold met
+        - 'Z': float, Defector payoff if threshold not met
+
+    partns, list of list of ints
+        List of all possible partitions of n
+
+    M, matrix of floats
+        Matrix that converts partition probabilities F_{n -> lambda} 
+        to the n-relatednesses theta_{l -> m}). 
+
+    q, float (0,1)
+        The probability that the recruitor makes a mistake and 
+        recruits a nonkin new member
+        
+
+    Outputs
+    ---
+
+    res, float
+        Solve res=0 to obtain q_1
+    '''
+
+    # unpack parameter values
+    n = parD['n']
+    tau = parD['tau']
+    W = parD['W']
+    X = parD['X']
+    Y = parD['Y']
+    Z = parD['Z']
+
+    # payoff functions
+    b = lambda k: Z if k < tau else Y
+    a = lambda k: X if k < tau-1 else W
+    
+    # find the probability of each partition
+    FV = get_FV_leader_driven(n, partns, q)
+
+    # calculate theta_{l -> m}
+    thetaV = M @ np.array(FV)
+
+    # create a dictionary from (l,m) to theta_{l -> m}
+    thetaD = dict(zip(lm, thetaV))
+    res = Y + (Z-Y)*sum( binom(n-1, l) * thetaD[(l+1, 1)] * (-1)**(l-(n-tau)) * binom(l-1,n-tau-1) 
+            for l in range(n-tau, n) ) - W
+
+    return res
+
+
+# functions for members-recruit homophilic group formation (probability q)
+# ---
+
+def get_FV_members_recruit(n, partns, q, fname=None): 
+    '''
+    Using the 'members recruit' homophilic group-formation model, 
+    calculate the vector of partition probabilities F.
 
     Inputs:
     ---
@@ -234,7 +440,7 @@ def get_FV_random_probability(n, partns, q, fname=None):
 
     if fname is None:
         # where sum_prod_mistakes stored
-        fname = '../../results/random_recruitor_nonkin_probability/sum_product_mistakes/sum_prod_mistakes' + str(n) + '.csv' 
+        fname = '../../results/members_recruit/sum_product_mistakes/sum_prod_mistakes' + str(n) + '.csv' 
 
     # deal with special cases
     # ---
@@ -278,9 +484,217 @@ def get_FV_random_probability(n, partns, q, fname=None):
     return FV
 
 
-def get_FV_random_weighting(n, partns, alpha):
+def calc_delta_p_members_recruit(parD, lm, partns, M, q, p):
     '''
-    Using the 'random recruitor + nonkin weighting' homophilic 
+    Using the 'members recruit' homophilic 
+    group-formation model, calculate delta_p, which is proportional to 
+    the change in frequency of Cooperators in the population.
+
+    Inputs
+    ---
+
+    parD, dict
+        Parameter values with keys below
+        - 'tau': int, Min no. Cooperators for public good productn
+        - 'n': int, Group size
+        - 'W': float, Cooperator payoff if threshold met
+        - 'X': float, Cooperator payoff if threshold not met
+        - 'Y': float, Defector payoff if threshold met
+        - 'Z': float, Defector payoff if threshold not met
+
+    lm, list of tuples of ints
+        A list of (l,m), the possible theta_{l -> m} indices
+
+    partns, list of list of ints
+        List of all possible partitions of n
+
+    M, matrix of floats
+        Matrix that converts partition probabilities F_{n -> lambda} 
+        to the n-relatednesses theta_{l -> m}). 
+
+    q, float (0,1)
+        The probability that the recruitor makes a mistake and 
+        recruits a nonkin new member
+        
+    p, float (0,1)
+        The proportion of Cooperators in the population
+
+
+    Outputs
+    ---
+
+    delta_p, float
+        A value that is proportional to the change in frequency of 
+        Cooperators in the population.
+    '''
+
+    # unpack parameter values
+    n = parD['n']
+    tau = parD['tau']
+    W = parD['W']
+    X = parD['X']
+    Y = parD['Y']
+    Z = parD['Z']
+
+    # payoff functions
+    b = lambda k: Z if k < tau else Y
+    a = lambda k: X if k < tau-1 else W
+
+    # find the probability of each partition according to the stranger-weighting model
+    FV = get_FV_members_recruit(n, partns, q)
+
+    # calculate theta_{l -> m}
+    thetaV = M @ np.array(FV)
+
+    # create a dictionary from (l,m) to theta_{l -> m}
+    thetaD = dict(zip(lm, thetaV))
+
+    # create the rho function
+    rho = lambda l: 1 if l == 0 else sum(thetaD[(l,m)]*p**m for m in range(1, l+1))
+
+    # calculate Delta p
+    delta_p = sum( 
+            sum( (-1)**(l-k) * binom(l, k) * binom(n-1, l) * 
+                ( (1-rho(1))*rho(l+1)*a(k) - rho(1)*(rho(l)-rho(l+1))*b(k) ) 
+                for l in range(k, n) ) 
+            for k in range(0, n) )
+
+    return delta_p
+
+def q0_root_eqn_members_recruit(parD, lm, partns, M, q):
+    '''
+    Using the 'members recruit' homophilic group-formation model.
+
+    Solve this equation to calculate q_0, the mistake probability at 
+    which the unstable isocline meets the p=0 axis.
+
+    Inputs
+    ---
+
+    parD, dict
+        Parameter values with keys below
+        - 'tau': int, Min no. Cooperators for public good productn
+        - 'n': int, Group size
+        - 'W': float, Cooperator payoff if threshold met
+        - 'X': float, Cooperator payoff if threshold not met
+        - 'Y': float, Defector payoff if threshold met
+        - 'Z': float, Defector payoff if threshold not met
+
+    partns, list of list of ints
+        List of all possible partitions of n
+
+    M, matrix of floats
+        Matrix that converts partition probabilities F_{n -> lambda} 
+        to the n-relatednesses theta_{l -> m}). 
+
+    q, float (0,1)
+        The probability that the recruitor makes a mistake and 
+        recruits a nonkin new member
+        
+
+    Outputs
+    ---
+
+    res, float
+        Solve res=0 to obtain q_0
+    '''
+
+    # unpack parameter values
+    n = parD['n']
+    tau = parD['tau']
+    W = parD['W']
+    X = parD['X']
+    Y = parD['Y']
+    Z = parD['Z']
+
+    # payoff functions
+    b = lambda k: Z if k < tau else Y
+    a = lambda k: X if k < tau-1 else W
+    
+    # find the probability of each partition
+    FV = get_FV_members_recruit(n, partns, q)
+
+    # calculate theta_{l -> m}
+    thetaV = M @ np.array(FV)
+
+    # create a dictionary from (l,m) to theta_{l -> m}
+    thetaD = dict(zip(lm, thetaV))
+    res = X + (W-X)*sum( binom(n-1, l) * thetaD[(l+1, 1)] * (-1)**(l-tau+1) * binom(l-1,tau-2) 
+            for l in range(tau-1, n) ) - b(0)
+
+    return res
+
+# find the root of this equation to find where the isocline intercepts with the p_0 = 1 axis
+def q1_root_eqn_members_recruit(parD, lm, partns, M, q):
+    '''
+    Using the 'members_recruit' homophilic group-formation model.
+
+    Solve this equation to calculate q_1, the mistake probability at 
+    which the stable isocline meets the p=1 axis.
+
+    Inputs
+    ---
+
+    parD, dict
+        Parameter values with keys below
+        - 'tau': int, Min no. Cooperators for public good productn
+        - 'n': int, Group size
+        - 'W': float, Cooperator payoff if threshold met
+        - 'X': float, Cooperator payoff if threshold not met
+        - 'Y': float, Defector payoff if threshold met
+        - 'Z': float, Defector payoff if threshold not met
+
+    partns, list of list of ints
+        List of all possible partitions of n
+
+    M, matrix of floats
+        Matrix that converts partition probabilities F_{n -> lambda} 
+        to the n-relatednesses theta_{l -> m}). 
+
+    q, float (0,1)
+        The probability that the recruitor makes a mistake and 
+        recruits a nonkin new member
+        
+
+    Outputs
+    ---
+
+    res, float
+        Solve res=0 to obtain q_1
+    '''
+
+    # unpack parameter values
+    n = parD['n']
+    tau = parD['tau']
+    W = parD['W']
+    X = parD['X']
+    Y = parD['Y']
+    Z = parD['Z']
+
+    # payoff functions
+    b = lambda k: Z if k < tau else Y
+    a = lambda k: X if k < tau-1 else W
+    
+    # find the probability of each partition
+    FV = get_FV_members_recruit(n, partns, q)
+
+    # calculate theta_{l -> m}
+    thetaV = M @ np.array(FV)
+
+    # create a dictionary from (l,m) to theta_{l -> m}
+    thetaD = dict(zip(lm, thetaV))
+    res = Y + (Z-Y)*sum( binom(n-1, l) * thetaD[(l+1, 1)] * (-1)**(l-(n-tau)) * binom(l-1,n-tau-1) 
+            for l in range(n-tau, n) ) - W
+
+    return res
+
+
+# functions for members-attract homophilic group formation (weighting alpha)
+# ---
+
+def get_FV_members_attract(n, partns, alpha):
+    '''
+    Using the 'members attract' homophilic 
     group-formation model, calculate the vector of partition 
     probabilities F.
 
@@ -311,30 +725,46 @@ def get_FV_random_weighting(n, partns, alpha):
     # place to store probabilities of each partition
     FV = [0]*len(partns)
 
-    fact_n = factorial(n)
-    for i, partn in enumerate(partns):
+    if alpha == 0:
 
-        Phi = len(partn)
+        # all individuals will be in the same partition
+        FV = [ 1 if len(partn) == 1 else 0 for partn in partns ]
 
-        # phi_i i s the number of species with i individuals
-        # create a list of non-zero (i, phi_i) pairs
+    elif np.isinf(alpha):
 
-        iV = set(partn) # which i's occur
-        i_phiV = [ (i, partn.count(i)) for i in iV ]
+        # all individuals will be in separate partitions
+        FV = [ 1 if len(partn) == n else 0 for partn in partns ]
 
-        # get terms in denom
-        AA = np.prod([ i**phi_i for i, phi_i in i_phiV ])
-        BB = np.prod([ factorial(phi_i) for _, phi_i in i_phiV ])
-        CC = np.prod([ alpha + k - 1 for k in range(1, n+1) ])
+    else:
 
-        # calc F
-        FV[i] = fact_n * alpha**Phi / (AA*BB*CC)
+        # we'll need to calculate using Ewen's formula
+
+        fact_n = factorial(n)
+        for i, partn in enumerate(partns):
+
+            Phi = len(partn)
+
+            # phi_i i s the number of species with i individuals
+            # create a list of non-zero (i, phi_i) pairs
+
+            iV = set(partn) # which i's occur
+            i_phiV = [ (i, partn.count(i)) for i in iV ]
+
+            # get terms in denom
+            AA = np.prod([ i**phi_i for i, phi_i in i_phiV ])
+            BB = np.prod([ factorial(phi_i) for _, phi_i in i_phiV ])
+            CC = np.prod([ alpha + k - 1 for k in range(1, n+1) ])
+
+            # calc F
+            #FV[i] = fact_n * alpha**Phi / (AA*BB*CC)
+            FV[i] = fact_n * alpha**Phi / AA / BB / CC # rewritten to prevent overflow errors
 
     return FV
 
-def calc_delta_p_random_probability(parD, lm, partns, M, q, p):
+# NOTE you could make these all the same function with a switch for type
+def calc_delta_p_members_attract(parD, lm, partns, M, alpha, p):
     '''
-    Using the 'random recruitor + nonkin probability' homophilic 
+    Using the 'members attract' homophilic 
     group-formation model, calculate delta_p, which is proportional to 
     the change in frequency of Cooperators in the population.
 
@@ -360,9 +790,9 @@ def calc_delta_p_random_probability(parD, lm, partns, M, q, p):
         Matrix that converts partition probabilities F_{n -> lambda} 
         to the n-relatednesses theta_{l -> m}). 
 
-    q, float (0,1)
-        The probability that the recruitor makes a mistake and 
-        recruits a nonkin new member
+    alpha, float (0,infty)
+        The 'stranger weighting', the weighting given to recruitment 
+        of a nonkin new member.
         
     p, float (0,1)
         The proportion of Cooperators in the population
@@ -389,7 +819,7 @@ def calc_delta_p_random_probability(parD, lm, partns, M, q, p):
     a = lambda k: X if k < tau-1 else W
 
     # find the probability of each partition according to the stranger-weighting model
-    FV = get_FV_random_probability(n, partns, q)
+    FV = get_FV_members_attract(n, partns, alpha)
 
     # calculate theta_{l -> m}
     thetaV = M @ np.array(FV)
@@ -409,12 +839,12 @@ def calc_delta_p_random_probability(parD, lm, partns, M, q, p):
 
     return delta_p
 
-def q0_root_eqn_random_probability(parD, lm, partns, M, q):
-    '''
-    Using the 'random recruitor + nonkin probability' homophilic 
-    group-formation model.
 
-    Solve this equation to calculate q_0, the mistake probability at 
+def alpha0_root_eqn_members_attract(parD, lm, partns, M, alpha):
+    '''
+    Using the 'members attract' homophilic group-formation model.
+
+    Solve this equation to calculate alpha_0, the stranger weighting at 
     which the unstable isocline meets the p=0 axis.
 
     Inputs
@@ -436,16 +866,16 @@ def q0_root_eqn_random_probability(parD, lm, partns, M, q):
         Matrix that converts partition probabilities F_{n -> lambda} 
         to the n-relatednesses theta_{l -> m}). 
 
-    q, float (0,1)
-        The probability that the recruitor makes a mistake and 
-        recruits a nonkin new member
+    alpha, float (0,infty)
+        The 'stranger weighting', the weighting given to recruitment 
+        of a nonkin new member.
         
 
     Outputs
     ---
 
     res, float
-        Solve res=0 to obtain q_0
+        Solve res=0 to obtain alpha_0
     '''
 
     # unpack parameter values
@@ -461,7 +891,7 @@ def q0_root_eqn_random_probability(parD, lm, partns, M, q):
     a = lambda k: X if k < tau-1 else W
     
     # find the probability of each partition
-    FV = get_FV_random_probability(n, partns, q)
+    FV = get_FV_members_attract(n, partns, alpha)
 
     # calculate theta_{l -> m}
     thetaV = M @ np.array(FV)
@@ -473,13 +903,12 @@ def q0_root_eqn_random_probability(parD, lm, partns, M, q):
 
     return res
 
-# find the root of this equation to find where the isocline intercepts with the p_0 = 1 axis
-def q1_root_eqn_random_probability(parD, lm, partns, M, q):
-    '''
-    Using the 'random recruitor + nonkin probability' homophilic 
-    group-formation model.
 
-    Solve this equation to calculate q_1, the mistake probability at 
+def alpha1_root_eqn_members_attract(parD, lm, partns, M, alpha):
+    '''
+    Using the 'members attract' homophilic group-formation model.
+
+    Solve this equation to calculate alpha_1, the stranger weighting at 
     which the stable isocline meets the p=1 axis.
 
     Inputs
@@ -501,16 +930,16 @@ def q1_root_eqn_random_probability(parD, lm, partns, M, q):
         Matrix that converts partition probabilities F_{n -> lambda} 
         to the n-relatednesses theta_{l -> m}). 
 
-    q, float (0,1)
-        The probability that the recruitor makes a mistake and 
-        recruits a nonkin new member
+    alpha, float (0,infty)
+        The 'stranger weighting', the weighting given to recruitment 
+        of a nonkin new member.
         
 
     Outputs
     ---
 
     res, float
-        Solve res=0 to obtain q_1
+        Solve res=0 to obtain alpha_1
     '''
 
     # unpack parameter values
@@ -526,214 +955,7 @@ def q1_root_eqn_random_probability(parD, lm, partns, M, q):
     a = lambda k: X if k < tau-1 else W
     
     # find the probability of each partition
-    FV = get_FV_random_probability(n, partns, q)
-
-    # calculate theta_{l -> m}
-    thetaV = M @ np.array(FV)
-
-    # create a dictionary from (l,m) to theta_{l -> m}
-    thetaD = dict(zip(lm, thetaV))
-    res = Y + (Z-Y)*sum( binom(n-1, l) * thetaD[(l+1, 1)] * (-1)**(l-(n-tau)) * binom(l-1,n-tau-1) 
-            for l in range(n-tau, n) ) - W
-
-    return res
-
-def calc_delta_p_leader_probability(parD, lm, partns, M, q, p):
-    '''
-    Using the 'leader recruitor + nonkin probability' homophilic 
-    group-formation model, calculate delta_p, which is proportional to 
-    the change in frequency of Cooperators in the population.
-
-    Inputs
-    ---
-
-    parD, dict
-        Parameter values with keys below
-        - 'tau': int, Min no. Cooperators for public good productn
-        - 'n': int, Group size
-        - 'W': float, Cooperator payoff if threshold met
-        - 'X': float, Cooperator payoff if threshold not met
-        - 'Y': float, Defector payoff if threshold met
-        - 'Z': float, Defector payoff if threshold not met
-
-    lm, list of tuples of ints
-        A list of (l,m), the possible theta_{l -> m} indices
-
-    partns, list of list of ints
-        List of all possible partitions of n
-
-    M, matrix of floats
-        Matrix that converts partition probabilities F_{n -> lambda} 
-        to the n-relatednesses theta_{l -> m}). 
-
-    q, float (0,1)
-        The probability that the recruitor makes a mistake and 
-        recruits a nonkin new member
-        
-    p, float (0,1)
-        The proportion of Cooperators in the population
-
-
-    Outputs
-    ---
-
-    delta_p, float
-        A value that is proportional to the change in frequency of 
-        Cooperators in the population.
-    '''
-
-    # unpack parameter values
-    n = parD['n']
-    tau = parD['tau']
-    W = parD['W']
-    X = parD['X']
-    Y = parD['Y']
-    Z = parD['Z']
-
-    # payoff functions
-    b = lambda k: Z if k < tau else Y
-    a = lambda k: X if k < tau-1 else W
-
-    # find the probability of each partition according to the stranger-weighting model
-    FV = get_FV_leader_probability(n, partns, q)
-
-    # calculate theta_{l -> m}
-    thetaV = M @ np.array(FV)
-
-    # create a dictionary from (l,m) to theta_{l -> m}
-    thetaD = dict(zip(lm, thetaV))
-
-    # create the rho function
-    rho = lambda l: 1 if l == 0 else sum(thetaD[(l,m)]*p**m for m in range(1, l+1))
-
-    # calculate Delta p
-    delta_p = sum( 
-            sum( (-1)**(l-k) * binom(l, k) * binom(n-1, l) * 
-                ( (1-rho(1))*rho(l+1)*a(k) - rho(1)*(rho(l)-rho(l+1))*b(k) ) 
-                for l in range(k, n) ) 
-            for k in range(0, n) )
-
-    return delta_p
-
-
-def q0_root_eqn_leader_probability(parD, lm, partns, M, q):
-    '''
-    Using the 'leader recruitor + nonkin probability' homophilic 
-    group-formation model.
-
-    Solve this equation to calculate q_0, the mistake probability at 
-    which the unstable isocline meets the p=0 axis.
-
-    Inputs
-    ---
-
-    parD, dict
-        Parameter values with keys below
-        - 'tau': int, Min no. Cooperators for public good productn
-        - 'n': int, Group size
-        - 'W': float, Cooperator payoff if threshold met
-        - 'X': float, Cooperator payoff if threshold not met
-        - 'Y': float, Defector payoff if threshold met
-        - 'Z': float, Defector payoff if threshold not met
-
-    partns, list of list of ints
-        List of all possible partitions of n
-
-    M, matrix of floats
-        Matrix that converts partition probabilities F_{n -> lambda} 
-        to the n-relatednesses theta_{l -> m}). 
-
-    q, float (0,1)
-        The probability that the recruitor makes a mistake and 
-        recruits a nonkin new member
-        
-
-    Outputs
-    ---
-
-    res, float
-        Solve res=0 to obtain q_0
-    '''
-
-    # unpack parameter values
-    n = parD['n']
-    tau = parD['tau']
-    W = parD['W']
-    X = parD['X']
-    Y = parD['Y']
-    Z = parD['Z']
-
-    # payoff functions
-    b = lambda k: Z if k < tau else Y
-    a = lambda k: X if k < tau-1 else W
-    
-    # find the probability of each partition
-    FV = get_FV_leader_probability(n, partns, q)
-
-    # calculate theta_{l -> m}
-    thetaV = M @ np.array(FV)
-
-    # create a dictionary from (l,m) to theta_{l -> m}
-    thetaD = dict(zip(lm, thetaV))
-    res = X + (W-X)*sum( binom(n-1, l) * thetaD[(l+1, 1)] * (-1)**(l-tau+1) * binom(l-1,tau-2) 
-            for l in range(tau-1, n) ) - b(0)
-
-    return res
-
-# find the root of this equation to find where the isocline intercepts with the p_0 = 1 axis
-def q1_root_eqn_leader_probability(parD, lm, partns, M, q):
-    '''
-    Using the 'leader recruitor + nonkin probability' homophilic 
-    group-formation model.
-
-    Solve this equation to calculate q_1, the mistake probability at 
-    which the stable isocline meets the p=1 axis.
-
-    Inputs
-    ---
-
-    parD, dict
-        Parameter values with keys below
-        - 'tau': int, Min no. Cooperators for public good productn
-        - 'n': int, Group size
-        - 'W': float, Cooperator payoff if threshold met
-        - 'X': float, Cooperator payoff if threshold not met
-        - 'Y': float, Defector payoff if threshold met
-        - 'Z': float, Defector payoff if threshold not met
-
-    partns, list of list of ints
-        List of all possible partitions of n
-
-    M, matrix of floats
-        Matrix that converts partition probabilities F_{n -> lambda} 
-        to the n-relatednesses theta_{l -> m}). 
-
-    q, float (0,1)
-        The probability that the recruitor makes a mistake and 
-        recruits a nonkin new member
-        
-
-    Outputs
-    ---
-
-    res, float
-        Solve res=0 to obtain q_1
-    '''
-
-    # unpack parameter values
-    n = parD['n']
-    tau = parD['tau']
-    W = parD['W']
-    X = parD['X']
-    Y = parD['Y']
-    Z = parD['Z']
-
-    # payoff functions
-    b = lambda k: Z if k < tau else Y
-    a = lambda k: X if k < tau-1 else W
-    
-    # find the probability of each partition
-    FV = get_FV_leader_probability(n, partns, q)
+    FV = get_FV_members_attract(n, partns, alpha)
 
     # calculate theta_{l -> m}
     thetaV = M @ np.array(FV)

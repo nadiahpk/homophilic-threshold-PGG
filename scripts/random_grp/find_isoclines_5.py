@@ -57,11 +57,17 @@ plotD = {
             'vpar_in': 'W',
             'xlabel': r'Defector payoff if threshold met, $Y$'
             },
+        'Z': { 
+            'vpar_lo': -1,
+            'vpar_hi': None,
+            'vpar_in': 'X',
+            'xlabel': r'Defector payoff if threshold not met, $Z$'
+            },
         }
 
 
 
-for vary_par_name in ['W', 'X', 'Y']:
+for vary_par_name in ['W', 'X', 'Y', 'Z']:
 
     # read in the default and critical values
     # ---
@@ -119,13 +125,24 @@ for vary_par_name in ['W', 'X', 'Y']:
         stable_par_vals = [par_crit] + vary_par_vals
         stable_ps = [p_crit] + pV
 
-    elif vary_par_name == 'Y':
+    elif vary_par_name == 'Y' or vary_par_name == 'Z':
 
-        # stable upper isocline from lower bound to vpar_int
-        # ---
 
-        stable_par_vals = [ plotD[vary_par_name]['vpar_lo'], parD_orig[plotD[vary_par_name]['vpar_in']] ]
-        stable_ps = [1, 1]
+        if vary_par_name == 'Y':
+
+            # stable upper isocline from lower bound to vpar_int
+            # ---
+
+            stable_par_vals = [ plotD[vary_par_name]['vpar_lo'], parD_orig[plotD[vary_par_name]['vpar_in']] ]
+            stable_ps = [1, 1]
+
+        else:
+
+            # upper isocline doesn't go on p=1
+            # ---
+
+            stable_par_vals = []
+            stable_ps = []
 
 
         # go from vpar_in to upper bound
@@ -133,7 +150,11 @@ for vary_par_name in ['W', 'X', 'Y']:
 
         vpar_lo = parD_orig[plotD[vary_par_name]['vpar_in']]
         vpar_hi = par_crit
-        vary_par_vals = list(np.linspace(vpar_lo, vpar_hi, ngrid)[1:-1])
+
+        if vary_par_name == 'Y':
+            vary_par_vals = list(np.linspace(vpar_lo, vpar_hi, ngrid)[1:-1])
+        else:
+            vary_par_vals = list(np.linspace(vpar_lo, vpar_hi, ngrid)[:-1])
 
         pV = list()
         for vary_par_val in vary_par_vals:
@@ -227,11 +248,19 @@ for vary_par_name in ['W', 'X', 'Y']:
     # critical point
     plt.scatter([par_crit], [p_crit], color='black')
 
-    # where two interior equilibria appear
+    # border with other parameter
     xloc = parD_orig[plotD[vary_par_name]['vpar_in']]
-    pretty = r' $' + plotD[vary_par_name]['vpar_in'] + r'$'
+    pretty = r' $' + vary_par_name + '=' + plotD[vary_par_name]['vpar_in'] + r'$ '
     plt.plot([xloc, xloc], [-0.1, 1], color='black', alpha=0.5, lw=1)
-    plt.text(xloc, 0.05, pretty, ha='left', va='bottom')
+
+    ha = 'right' if vary_par_name == 'X' else 'left'
+    yloc = 0.05 if vary_par_name == 'Y' or vary_par_name == 'W' else 0.9
+    plt.text(xloc, yloc, pretty, ha=ha, va='bottom')
+
+    # annotate the critical value
+    pretty = r'  $( \hat{' + vary_par_name + '}, \hat{p})$  '
+    ha = 'left' if vary_par_name == 'Y' or vary_par_name == 'Z' else 'right'
+    plt.text(par_crit, p_crit, pretty, ha=ha, va='center')
 
     # stable and unstable isocline
     plt.plot(stable_par_vals, stable_ps, color='black', lw=3, label='stable')
@@ -241,8 +270,15 @@ for vary_par_name in ['W', 'X', 'Y']:
     plt.ylabel(r'proportion of Cooperators, $p$', fontsize='x-large')
 
     if vary_par_name == 'X':
+
         plt.xlim((vpar_lo, vpar_hi+0.05))
+
+    elif vary_par_name == 'Z':
+
+        plt.xlim((vpar_lo-0.05, vpar_hi))
+
     else:
+
         plt.xlim((vpar_lo, vpar_hi))
 
     plt.ylim((-0.05, 1.12))
@@ -263,7 +299,15 @@ for vary_par_name in ['W', 'X', 'Y']:
         make_arrow(3.50, 0.10, +0.1)
         make_arrow(3.50, 0.80, -0.1)
 
-        make_arrow(2.07, 0.54, +0.1)
+        make_arrow(2.07, 0.4, +0.1)
+
+    if vary_par_name == 'X':
+
+        make_arrow(-0.3, 0.75, +0.1)
+        make_arrow(-0.3, 0.55, -0.1)
+        make_arrow(-0.3, 0.10, +0.1)
+
+        make_arrow(-0.9, 0.5, +0.1)
 
     if vary_par_name == 'Y':
 
@@ -274,15 +318,15 @@ for vary_par_name in ['W', 'X', 'Y']:
         make_arrow(1.00, 0.10, +0.1)
         make_arrow(1.00, 0.80, -0.1)
 
-        make_arrow(2.82, 0.55, +0.1)
+        make_arrow(2.82, 0.4, +0.1)
 
-    if vary_par_name == 'X':
+    if vary_par_name == 'Z':
 
-        make_arrow(-0.3, 0.75, +0.1)
-        make_arrow(-0.3, 0.55, -0.1)
-        make_arrow(-0.3, 0.10, +0.1)
+        make_arrow(-0.6, 0.75, +0.1)
+        make_arrow(-0.6, 0.55, -0.1)
+        make_arrow(-0.6, 0.10, +0.1)
 
-        make_arrow(-0.9, 0.5, +0.1)
+        make_arrow(-0.05, 0.5, +0.1)
 
     plt.legend(loc='upper center', framealpha=1, ncol=2)
     plt.tight_layout()

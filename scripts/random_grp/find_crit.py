@@ -57,7 +57,11 @@ def make_0(par_val, par_name, parD_orig):
     p_peak = calc_p_peak_random_group(parD)
 
     # Delta p given p_peak equals 0 at the critical par value
-    res = X - Z + (W-X) * binom(n-1,tau-1) * p_peak**(tau-1) + sum( binom(n-1,l) * p_peak**l * (-1)**(l-tau) * ( binom(l-1, tau-2) * (X-W) + binom(l-1, tau-1) * (Z-Y)) for l in range(tau, n) )
+    # res = X - Z + (W-X) * binom(n-1,tau-1) * p_peak**(tau-1) + sum( binom(n-1,l) * p_peak**l * (-1)**(l-tau) * ( binom(l-1, tau-2) * (X-W) + binom(l-1, tau-1) * (Z-Y)) for l in range(tau, n) )
+    
+    # The gain function at p_peak also equals 0 at the critical value, and it's perhaps easier to calculate
+    res = (W-Y) + (Y-Z) * sum(binom(n-1, k) * p_peak**k * (1-p_peak)**(n-1-k) for k in range(tau)) \
+                - (W-X) * sum(binom(n-1, k) * p_peak**k * (1-p_peak)**(n-1-k) for k in range(tau-1))
 
     return res
 # ------------------------------------------------------------
@@ -66,8 +70,8 @@ def make_0(par_val, par_name, parD_orig):
 # ---
 
 # which default parameter values to use from the file default_params.csv
-#suffix = '_5'
-#suffix = '_6'
+suffix = '_5'
+suffix = '_6'
 suffix = '_7'
 
 
@@ -78,7 +82,7 @@ suffix = '_7'
 par_names = ['n', 'tau', 'W', 'X', 'Y', 'Z']
 
 # which parameters are we finding the critical value for
-vary_par_names = ['W', 'X', 'Y']
+vary_par_names = ['W', 'X', 'Y', 'Z']
 
 
 # read in the default parameter values
