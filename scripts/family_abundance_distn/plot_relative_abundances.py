@@ -14,16 +14,16 @@ xV = [1, 2, 3]
 colours = ['red', 'blue', 'black']
 lsV = ['solid', 'dashed', 'dotted']
 
-# plot
-height = 3.8 # default 4.8
-width = 1.3*height
-plt.figure(figsize=(width, height)) # default
-
 
 # make separate plot for each model type
 # ---
 
 for model_type in model_types:
+
+    # plot
+    height = 3.8 # default 4.8
+    width = 1.3*height
+    plt.figure(figsize=(width, height)) # default
 
     for xi, colour, ls in zip(xV, colours, lsV):
 

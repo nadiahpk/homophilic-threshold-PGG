@@ -62,15 +62,15 @@ plt.plot([0, h_1], [1, 1],  color='black', ls='dashed')
 if h_hat != 0:
     plt.scatter([h_hat], [p_at_q_hat], color='black')
     plt.plot([h_hat, h_hat], [-0.1, 1], color='black', alpha=0.5, lw=1)
-    plt.text(h_hat, 0, r' $\hat{h}$ ' + '\n', ha='left', va='bottom', fontsize='x-large')
+    #plt.text(h_hat, 0, r' $\hat{h}$ ' + '\n', ha='left', va='bottom', fontsize='x-large')
 
 # plot where the p isocline intersects x axis
 
 plt.plot([h_0, h_0], [-0.1, 1], color='black', alpha=0.5, lw=1)
-plt.text(h_0+0.01, 0, r'$h_0$' + '\n', ha='left', va='bottom', fontsize='x-large')
+#plt.text(h_0+0.01, 0, r'$h_0$' + '\n', ha='left', va='bottom', fontsize='x-large')
 
 plt.plot([h_1, h_1], [-0.1, 1], color='black', alpha=0.5, lw=1)
-plt.text(h_1+0.01, 1, '\n' + r'$h_1$', ha='left', va='top', fontsize='x-large')
+#plt.text(h_1+0.01, 1, '\n' + r'$h_1$', ha='left', va='top', fontsize='x-large')
 
 # colour regions
 
@@ -120,6 +120,22 @@ elif suffix == '_7':
 	make_arrow((1-q_0+1-q_hat)/2, 0.75, +0.1)
 
 # decorate the plot
+
+# put critical h points on the x-axis
+
+
+if h_hat != 0:
+    h_locs = [0, h_hat, h_0, h_1, 1]
+    h_labs = ['0', r'$\hat{h}$', r'$h_0$', r'$h_1$', '1']
+else:
+    h_locs = [0, h_0, h_1, 1]
+    h_labs = ['0', r'$h_0$', r'$h_1$', '1']
+h_zip = sorted(list(zip(h_locs, h_labs)), key = lambda v: v[0])
+
+new_locs, new_labs = zip(*h_zip)
+plt.xticks(new_locs, new_labs, fontsize='x-large')
+
+# rest of the decorations
 
 plt.xlabel(r'homophily $h$', fontsize='x-large')
 plt.ylabel(r'proportion of Cooperators $p$', fontsize='x-large')
