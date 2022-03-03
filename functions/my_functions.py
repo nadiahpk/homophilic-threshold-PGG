@@ -484,7 +484,7 @@ def get_FV_members_recruit(n, partns, q, fname=None):
     return FV
 
 
-def calc_delta_p_members_recruit(parD, lm, partns, M, q, p):
+def calc_delta_p_members_recruit(parD, lm, partns, M, q, p, a=None, b=None):
     '''
     Using the 'members recruit' homophilic 
     group-formation model, calculate delta_p, which is proportional to 
@@ -537,8 +537,10 @@ def calc_delta_p_members_recruit(parD, lm, partns, M, q, p):
     Z = parD['Z']
 
     # payoff functions
-    b = lambda k: Z if k < tau else Y
-    a = lambda k: X if k < tau-1 else W
+    if a is None:
+        a = lambda k: X if k < tau-1 else W
+    if b is None:
+        b = lambda k: Z if k < tau else Y
 
     # find the probability of each partition according to the stranger-weighting model
     FV = get_FV_members_recruit(n, partns, q)
@@ -761,7 +763,7 @@ def get_FV_members_attract(n, partns, alpha):
 
     return FV
 
-# NOTE you could make these all the same function with a switch for type
+# NOTE you could make these all the same function with a switch for group-formation model type
 def calc_delta_p_members_attract(parD, lm, partns, M, alpha, p):
     '''
     Using the 'members attract' homophilic 

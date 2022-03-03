@@ -27,6 +27,7 @@ suffix = '_5'
 
 res_dir = '../../results/members_recruit/'
 
+
 # fixed parameters
 # ---
 
@@ -48,6 +49,7 @@ W = parD['W']
 X = parD['X']
 Y = parD['Y']
 Z = parD['Z']
+
 
 # get previously saved lm, partns, and M
 # ---
