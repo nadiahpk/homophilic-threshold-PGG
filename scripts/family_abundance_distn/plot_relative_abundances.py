@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 # user parameters
 # ---
 
-model_types = ['members_recruit', 'leader_driven', 'members_attract']
+little_letters = ['(a) leader driven', '(b) members recruit', '(c) members attract']
+model_types = [ 'leader_driven', 'members_recruit', 'members_attract' ]
 res_dir = '../../results/family_abundance_distn/'
 
 # which ranks to plot
@@ -18,12 +19,12 @@ lsV = ['solid', 'dashed', 'dotted']
 # make separate plot for each model type
 # ---
 
-for model_type in model_types:
+fig, axs = plt.subplots(1, 3, sharey=True, figsize=(9,4.0))
+fig.add_subplot(111, frameon=False)
+for panel in range(3):
 
-    # plot
-    height = 3.8 # default 4.8
-    width = 1.3*height
-    plt.figure(figsize=(width, height)) # default
+    model_type = model_types[panel]
+    little_letter = little_letters[panel]
 
     for xi, colour, ls in zip(xV, colours, lsV):
 
@@ -34,17 +35,21 @@ for model_type in model_types:
         nV = [ int(col_name.split('=')[1]) for col_name in df.columns ]
 
         # plots
-        plt.plot(nV, df.quantile(0.5), color=colour, lw=2, label=str(xi), ls=ls)            # mean
-        plt.fill_between(nV, df.quantile(0.05), df.quantile(0.95), color=colour, alpha=0.2) # 90%-ile
-        # plt.plot(nV, df.iloc[0], lw=0.5, color=colour) # one example
+        axs[panel].plot(nV, df.quantile(0.5), color=colour, lw=2, label=str(xi), ls=ls)            # mean
+        axs[panel].fill_between(nV, df.quantile(0.05), df.quantile(0.95), color=colour, alpha=0.2) # 90%-ile
+        # axs[panel].plot(nV, df.iloc[0], lw=0.5, color=colour) # one example
 
+    if panel == 0:
+        axs[panel].legend(loc='best', title='family rank', fontsize='large')
+    axs[panel].text(1.0, 1.1, little_letter, fontsize='large')
+    axs[panel].set_ylim((0,1))
+    axs[panel].set_xlim((2, 600000))
+    axs[panel].set_xscale('log')
 
-    plt.xscale('log')
-    plt.ylim((0,1))
-    plt.xlim((2, 600000))
-    plt.xlabel(r'group size $n$', fontsize='x-large')
-    plt.ylabel(r'proportion of group in family', fontsize='x-large')
-    plt.legend(loc='best', title='family rank')
-    plt.tight_layout()
-    plt.savefig(res_dir + 'relative_abundances_' + model_type + '.pdf')
-    plt.close()
+plt.xticks([0],['hi'], alpha=0) # so there's enough space for the xlabel
+plt.yticks([0],['hi i'], alpha=0) # so there's enough space for the ylabel
+plt.tight_layout()
+plt.xlabel(r'group size $n$', fontsize='x-large')
+plt.ylabel(r'proportion of group in family', fontsize='x-large')
+plt.savefig(res_dir + 'relative_abundances.pdf')
+plt.close()

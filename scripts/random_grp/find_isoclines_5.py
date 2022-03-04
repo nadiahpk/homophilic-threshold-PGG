@@ -46,7 +46,7 @@ plotD = {
             'xlabel': r'Cooperator payoff if threshold met, $W$'
             },
         'X': { 
-            'vpar_lo': None,
+            'vpar_lo': -1,
             'vpar_hi': 0,
             'vpar_in': 'Z',
             'xlabel': r'Cooperator payoff if threshold not met, $X$'
@@ -226,16 +226,20 @@ for vary_par_name in ['W', 'X', 'Y', 'Z']:
     # plot isoclines
     # ---
 
+    height = 3.8 # default 4.8
+    width = 1.3*height
+    plt.figure(figsize=(width, height)) # default
+
     fname = '../../results/random_grp/isoclines_' + vary_par_name + suffix + '.pdf'
 
     # get x-range of plot
     if plotD[vary_par_name]['vpar_lo'] is None:
-        vpar_lo = np.floor(par_crit)
+        vpar_lo = np.floor(par_crit) - 0.25
     else:
         vpar_lo = plotD[vary_par_name]['vpar_lo']
 
     if plotD[vary_par_name]['vpar_hi'] is None:
-        vpar_hi = np.ceil(par_crit)
+        vpar_hi = np.ceil(par_crit) + 0.25
     else:
         vpar_hi = plotD[vary_par_name]['vpar_hi']
 
@@ -281,7 +285,7 @@ for vary_par_name in ['W', 'X', 'Y', 'Z']:
 
         plt.xlim((vpar_lo, vpar_hi))
 
-    plt.ylim((-0.05, 1.12))
+    plt.ylim((-0.05, 1.15))
 
 
     # Hisashi wants some arrows
@@ -326,7 +330,7 @@ for vary_par_name in ['W', 'X', 'Y', 'Z']:
         make_arrow(-0.6, 0.55, -0.1)
         make_arrow(-0.6, 0.10, +0.1)
 
-        make_arrow(-0.05, 0.5, +0.1)
+        make_arrow(0.1, 0.5, +0.1)
 
     plt.legend(loc='upper center', framealpha=1, ncol=2)
     plt.tight_layout()
