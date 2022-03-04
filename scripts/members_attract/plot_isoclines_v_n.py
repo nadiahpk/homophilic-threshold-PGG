@@ -8,15 +8,15 @@ import pandas as pd
 # user parameters
 # ---
 
-res_dir = '../../results/members_recruit/'
-colours = ['brown', 'magenta', 'red', 'blue', 'orange', 'black']
+res_dir = '../../results/members_attract/'
+colours = ['red', 'blue', 'orange', 'black']
 
 
 # read in the critical points
 # ---
 
 # get the critical points
-fname = res_dir + 'isoclines_v_tau_critpts.csv'
+fname = res_dir + 'isoclines_v_n_critpts.csv'
 df = pd.read_csv(fname)
 
 
@@ -28,7 +28,7 @@ width = 1.3*height
 plt.figure(figsize=(width, height)) # default
 
 plot_lines = list() # for making legends
-tauV = list()
+nV = list()
 
 for row in range(len(df)):
 
@@ -36,27 +36,29 @@ for row in range(len(df)):
 
     # read in the information
     suffix = df.iloc[row]['suffix']
-    tau = df.iloc[row]['tau']
     n = df.iloc[row]['n']
-    q_0 = df.iloc[row]['q_0']
-    q_1 = df.iloc[row]['q_1']
-    q_hat = df.iloc[row]['q_hat']
-    p_at_h_hat = df.iloc[row]['p_at_q_hat']
+    alpha_0 = df.iloc[row]['alpha_0']
+    alpha_1 = df.iloc[row]['alpha_1']
+    alpha_hat = df.iloc[row]['alpha_hat']
+    p_at_h_hat = df.iloc[row]['p_at_alpha_hat']
 
-    tauV.append(tau)
+    nV.append(n)
 
     # read in the corresponding file for the isocline
-    fname = res_dir + 'isoclines_v_tau' + suffix + '.csv'
+    fname = res_dir + 'isoclines_v_n' + suffix + '.csv'
     df_iso = pd.read_csv(fname)
-    qV = df_iso['q'].values
+    alphaV = df_iso['alpha'].values
     p_stableV = df_iso['p_stable'].values
     p_unstableV = df_iso['p_unstable'].values
 
-    # convert to h = 1-q
-    hV = 1-qV
-    h_0 = 1-q_0
-    h_1 = 1-q_1
-    h_hat = 1-q_hat
+    # transform everything from alpha = [0, oo) to some h = (1, 0)
+    # ---
+
+    fnc = lambda x: 1/1.1**x # NOTE I need a reasonable way to choose this?
+    hV = fnc(alphaV)
+    h_0 = fnc(alpha_0)
+    h_1 = fnc(alpha_1)
+    h_hat = fnc(alpha_hat)
 
     # plot the isoclines
 
@@ -81,8 +83,8 @@ for row in range(len(df)):
 # create legend
 # ---
 
-legend1 = plt.legend(plot_lines[5], ['stable', 'unstable'], loc='upper center', framealpha=1, ncol=2)
-legend2 = plt.legend([l[0] for l in plot_lines], [r'$\tau=' + str(tau) + r'$' for tau in tauV], loc='center right')
+legend1 = plt.legend(plot_lines[3], ['stable', 'unstable'], loc='upper center', framealpha=1, ncol=2)
+legend2 = plt.legend([l[0] for l in plot_lines], [r'$n=' + str(n) + r'$' for n in nV], loc='center right')
 plt.gca().add_artist(legend1)
 plt.gca().add_artist(legend2)
 
@@ -96,5 +98,5 @@ plt.xlim((0, 1))
 plt.ylim((-0.05, 1.15))
 
 plt.tight_layout()
-plt.savefig(res_dir + 'isoclines_v_tau.pdf')
+plt.savefig(res_dir + 'isoclines_v_n.pdf')
 plt.close()

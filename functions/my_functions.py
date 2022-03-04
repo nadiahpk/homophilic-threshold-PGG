@@ -484,7 +484,7 @@ def get_FV_members_recruit(n, partns, q, fname=None):
     return FV
 
 
-def calc_delta_p_members_recruit(parD, lm, partns, M, q, p, a=None, b=None):
+def calc_delta_p_members_recruit(parD, lm, partns, M, q, p, a=None, b=None, sum_prod_mistakes_file=None):
     '''
     Using the 'members recruit' homophilic 
     group-formation model, calculate delta_p, which is proportional to 
@@ -543,7 +543,7 @@ def calc_delta_p_members_recruit(parD, lm, partns, M, q, p, a=None, b=None):
         b = lambda k: Z if k < tau else Y
 
     # find the probability of each partition according to the stranger-weighting model
-    FV = get_FV_members_recruit(n, partns, q)
+    FV = get_FV_members_recruit(n, partns, q, sum_prod_mistakes_file)
 
     # calculate theta_{l -> m}
     thetaV = M @ np.array(FV)
