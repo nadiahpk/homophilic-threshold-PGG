@@ -1,8 +1,6 @@
 # plot multiple isoclines for different group sizes n
 
 import os
-from math import factorial
-from scipy.special import binom
 import numpy as np
 # import matplotlib.pyplot as plt
 from scipy.optimize import bisect
@@ -196,6 +194,10 @@ for par_idx, specific_par in enumerate(specific_pars):
         alphaV = [0, alpha_0] + list(np.linspace(alpha_0, alpha_1, ngrid//2)[1:]) + list(np.linspace(alpha_1, alpha_grid_max, ngrid)[1:])
     else:
         alphaV = [0, alpha_1] + list(np.linspace(alpha_1, alpha_0, ngrid//2)[1:]) + list(np.linspace(alpha_0, alpha_grid_max, ngrid)[1:])
+
+    # and then append the infinity point if needed
+    if np.isinf(alpha_hat):
+        alphaV.append(alpha_hat)
 
     alphaM.append(alphaV)
 

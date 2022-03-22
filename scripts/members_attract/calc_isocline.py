@@ -1,8 +1,6 @@
 # create a detailed example
 
 import os
-from math import factorial
-from scipy.special import binom
 import numpy as np
 from scipy.optimize import bisect
 import pandas as pd
@@ -169,6 +167,10 @@ if alpha_0 < alpha_1:
 else:
     alphaV = [0, alpha_1] + list(np.linspace(alpha_1, alpha_0, ngrid//2)[1:]) + list(np.linspace(alpha_0, alpha_grid_max, ngrid)[1:])
 
+# and then append the infinity point if needed
+if np.isinf(alpha_hat):
+    alphaV.append(alpha_hat)
+
 p_stableV = [1, 1]
 p_unstableV = [0, 0]
 
@@ -226,26 +228,25 @@ for alpha in alphaV[2:]:
 df_out = pd.DataFrame(list(zip(alphaV, p_stableV, p_unstableV)), columns=['alpha', 'p_stable', 'p_unstable'])
 df_out.to_csv(res_dir + 'isocline' + suffix + '.csv', index=False)
 
-if False: # NOTE
-    # append the critical points to file
-    dfD = [{
-            'suffix': suffix,
-            'n': n,
-            'tau': tau,
-            'W': W,
-            'X': X,
-            'Y': Y,
-            'Z': Z,
-            'alpha_0': alpha_0,
-            'alpha_1': alpha_1,
-            'alpha_hat': alpha_hat,
-            'p_at_alpha_hat': p_at_alpha_hat,
-            }]
-    df_out = pd.DataFrame.from_records(dfD)
-    fname = res_dir + 'isocline_critpts.csv'
-    if not os.path.isfile(fname):
-        # write with headers
-        df_out.to_csv(fname, mode='w', header=True, index=False)
-    else:
-        # append
-        df_out.to_csv(fname, mode='a', header=False, index=False)
+# append the critical points to file
+dfD = [{
+        'suffix': suffix,
+        'n': n,
+        'tau': tau,
+        'W': W,
+        'X': X,
+        'Y': Y,
+        'Z': Z,
+        'alpha_0': alpha_0,
+        'alpha_1': alpha_1,
+        'alpha_hat': alpha_hat,
+        'p_at_alpha_hat': p_at_alpha_hat,
+        }]
+df_out = pd.DataFrame.from_records(dfD)
+fname = res_dir + 'isocline_critpts.csv'
+if not os.path.isfile(fname):
+    # write with headers
+    df_out.to_csv(fname, mode='w', header=True, index=False)
+else:
+    # append
+    df_out.to_csv(fname, mode='a', header=False, index=False)

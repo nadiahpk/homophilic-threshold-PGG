@@ -54,8 +54,9 @@ for row in range(len(df)):
     # transform everything from alpha = [0, oo) to some h = (1, 0)
     # ---
 
-    fnc = lambda x: 1/1.1**x # NOTE I need a reasonable way to choose this?
-    hV = fnc(alphaV)
+    # expected number of kin recruits / no recruits
+    fnc = lambda x: sum( i/(x+i) for i in range(1, n) )/(n-1)
+    hV = [ fnc(alpha) for alpha in alphaV ]
     h_0 = fnc(alpha_0)
     h_1 = fnc(alpha_1)
     h_hat = fnc(alpha_hat)
