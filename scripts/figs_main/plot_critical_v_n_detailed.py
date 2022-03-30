@@ -41,10 +41,10 @@ for panel in range(3):
         alphahV = df['alphahV'].values
 
         # invert to match the new "homophily" as the variable
-        fnc = lambda x: 1.5**(-x)
-        h0V = fnc(alpha0V)
-        h1V = fnc(alpha1V)
-        hhV = fnc(alphahV)
+        fnc = lambda x, n: sum( i/(x+i) for i in range(1, n) )/(n-1)
+        h0V = [ fnc(alpha0, n) for alpha0, n in zip(alpha0V, nV) ]
+        h1V = [ fnc(alpha1, n) for alpha1, n in zip(alpha1V, nV) ]
+        hhV = [ fnc(alphah, n) for alphah, n in zip(alphahV, nV) ]
 
     else:
 
