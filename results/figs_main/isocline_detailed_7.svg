@@ -453,7 +453,7 @@
          id="tspan1184"
          x="260.30591"
          y="-68.409889"
-         style="fill:#0000ff;fill-opacity:1;stroke-width:0.75;font-style:italic">a</tspan></text><text
+         style="font-style:normal;fill:#0000ff;fill-opacity:1;stroke-width:0.75">A</tspan></text><text
        xml:space="preserve"
        style="font-size:14px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';fill:#0000ff;fill-opacity:1;stroke-width:0.75"
        x="261.52151"
@@ -464,7 +464,7 @@
          id="tspan1188"
          x="261.52151"
          y="-220.94629"
-         style="fill:#0000ff;fill-opacity:1;stroke-width:0.75;font-style:italic">b</tspan></text><circle
+         style="font-style:normal;fill:#0000ff;fill-opacity:1;stroke-width:0.75">B</tspan></text><circle
        style="fill:#0000ff;fill-opacity:1;stroke:#0000ff;stroke-width:1.5"
        id="path1208"
        cx="254.96652"
@@ -495,7 +495,7 @@
          id="tspan1192"
          x="155.86122"
          y="-161.22121"
-         style="font-style:italic;fill:#0000ff;stroke-width:0.75">c</tspan></text><circle
+         style="font-style:normal;fill:#0000ff;stroke-width:0.75">C</tspan></text><circle
        style="fill:#0000ff;fill-opacity:1;stroke:#0000ff;stroke-width:1.5"
        id="path1208-3-6"
        cx="159.93544"
@@ -522,4 +522,4 @@
          id="tspan2473"
          x="58.386826"
          y="-130.65727"
-         style="fill:#0000ff;stroke-width:0.75;font-style:italic">d</tspan></text></g></svg>
+         style="font-style:normal;fill:#0000ff;stroke-width:0.75">D</tspan></text></g></svg>

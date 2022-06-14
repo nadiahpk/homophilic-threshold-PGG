@@ -440,7 +440,7 @@ def get_FV_members_recruit(n, partns, q, fname=None):
 
     if fname is None:
         # where sum_prod_mistakes stored
-        fname = '../../results/members_recruit/sum_product_mistakes/sum_prod_mistakes' + str(n) + '.csv' 
+        fname = '/home/elendil/work/hisashi/code/togit_homophilic_threshold_pgg/results/members_recruit/sum_product_mistakes/sum_prod_mistakes' + str(n) + '.csv' 
 
     # deal with special cases
     # ---
