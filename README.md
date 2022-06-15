@@ -41,7 +41,7 @@ A quickstart tutorial for how to use `read_matrix_M()` is provided in:
 
 The combinatorial term needed to calculate family partition structure probabilities for the members-recruit
 group-formation model (i.e., $\sum_{\vec{\mathbf{n}}} \sum_{\mathbf{m}} C(\mathbf{m}, \vec{\mathbf{n}}) \prod_k m_k$)
-can be calculated using the script: \\
+can be calculated using the script: 
 `scripts/members_recruit/sum_product_mistakes/save_sum_prod_mistakes.py`.
 
 Precalculated terms up to size $n=18$ and are stored in:
