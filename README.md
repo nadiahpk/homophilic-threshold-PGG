@@ -6,25 +6,25 @@ This code is used to study how genetically homophilic group formation influences
 
 ## About the manuscript
 
-Kristensen, N.P., Ohtsuki, H., Chilsholm, R.A. Ancestral social environments and nonlinear payoffs can explain cooperation in human societies
+Kristensen, N.P., Ohtsuki, H., Chilsholm, R.A. (2022) Ancestral social environments plus nonlinear benefits can explain cooperation in human societies, *Scientific Reports*
 
 **Abstract**
 
 Human cooperation (paying a cost to benefit others) is puzzling from a Darwinian perspective,
-particularly in groups with strangers who cannot repay nor are family members. Real-world
-scenarios typically involve a nonlinear relationship between the payoff and the number of
-cooperators in a group, and nonlinear payoffs can allow cooperation between strangers to persist
-evolutionarily provided that a large enough proportion of the population are already cooperators.
-However, if a lone cooperator faces a conflict between the group’s and their own interests (a social
-dilemma), that raises the question of how cooperation arose in the first place. We use a
-mathematically tractable evolutionary model to formalise a chronological narrative that has
-previously only been investigated verbally: given that ancient humans interacted mostly with family
-members (genetic homophily), cooperation evolved first by kin selection, and then persisted in
-situations with nonlinear payoffs as homophily declined or even if interactions with strangers
+particularly in groups with strangers who cannot repay nor are family members. The beneficial effects
+of cooperation typically increase nonlinearly with the number of cooperators, e.g., increasing returns
+when cooperation is low and diminishing returns when cooperation is high. Such nonlinearity can
+allow cooperation between strangers to persist evolutionarily if a large enough proportion of the
+population are already cooperators. However, if a lone cooperator faces a conflict between the group's
+and its own interests (a social dilemma), that raises the question of how cooperation arose in the first
+place. We use a mathematically tractable evolutionary model to formalise a chronological narrative
+that has previously only been investigated verbally: given that ancient humans interacted mostly with
+family members (genetic homophily), cooperation evolved first by kin selection, and then persisted
+in situations with nonlinear benefits as homophily declined or even if interactions with strangers
 became the norm. The model also predicts the coexistence of cooperators and defectors observed in
-the human population (polymorphism), and may explain why cooperators in behavioural
-experiments prefer to condition their contribution on the contributions of others (conditional
-cooperation in public goods games).
+the human population (polymorphism), and may explain why cooperators in behavioural experiments
+prefer to condition their contribution on the contributions of others (conditional cooperation in public
+goods games).
 
 ## Code quickstart
 
