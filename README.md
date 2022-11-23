@@ -1,5 +1,7 @@
 # Evolutionary dynamics of agents playing a nonlinear public goods game under genetically homophilic group formation
 
+[![DOI](https://zenodo.org/badge/443937530.svg)](https://zenodo.org/badge/latestdoi/443937530)
+
 ## About the code
 
 This code is used to study how genetically homophilic group formation influences the evolutionary dynamics of agents playing a nonlinear public goods game, primarily the threshold game. It uses the higher-order genetic association approach of Ohtsuki (2014; Phil Trans Roy Soc B), and features three different group-formation models, where groups are formed sequentially and current members tend to recruit or attract kin.
